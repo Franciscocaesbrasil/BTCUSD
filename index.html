@@ -4,33 +4,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Preço do Bitcoin (BTC/USD)</title>
+  <title>Bitcoin (BTC/USD) - Preço, Gráfico e Notícias</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #111;
       color: #fff;
-      text-align: center;
-      padding: 50px;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
     }
-    h1 {
+    h1, h2 {
       color: #f2a900;
+      text-align: center;
     }
     .price {
-      font-size: 3em;
-      margin: 20px 0;
+      font-size: 2em;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    .news {
+      margin-top: 30px;
+    }
+    .news-item {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 10px;
+    }
+    .news-item a {
+      color: #1e90ff;
+      text-decoration: none;
     }
     footer {
-      margin-top: 50px;
-      font-size: 0.9em;
+      text-align: center;
+      margin-top: 40px;
       color: #aaa;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
-  <h1>Preço do Bitcoin (BTC/USD)</h1>
-  <div class="price" id="btcPrice">Carregando...</div>
-  <footer>Dados fornecidos pela CoinGecko</footer>
+  <h1>Bitcoin (BTC/USD)</h1>
+  <div class="price" id="btcPrice">Carregando preço...</div>
+
+  <h2>Gráfico BTC/USD</h2>
+  <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_btc_chart&symbol=COINBASE:BTCUSD&interval=30&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc/UTC&withdateranges=1&hideideas=1"></iframe>
+
+  <div class="news">
+    <h2>Últimas Notícias sobre Bitcoin</h2>
+    <div id="newsContainer">Carregando notícias...</div>
+  </div>
+
+  <footer>
+    Dados fornecidos por CoinGecko e Google News | Site exemplo educativo
+  </footer>
 
   <script>
     async function fetchBTCPrice() {
@@ -45,8 +77,32 @@
       }
     }
 
+    async function fetchNews() {
+      try {
+        const response = await fetch('https://newsdata.io/api/1/news?apikey=demo&language=pt&category=business&q=bitcoin');
+        const data = await response.json();
+        const container = document.getElementById('newsContainer');
+        container.innerHTML = "";
+
+        if (data.results && data.results.length > 0) {
+          data.results.slice(0, 5).forEach(news => {
+            const item = document.createElement('div');
+            item.className = 'news-item';
+            item.innerHTML = `<strong>${news.title}</strong><br/><a href="${news.link}" target="_blank">Leia mais</a>`;
+            container.appendChild(item);
+          });
+        } else {
+          container.innerHTML = "Nenhuma notícia encontrada.";
+        }
+      } catch (error) {
+        document.getElementById('newsContainer').textContent = 'Erro ao carregar notícias.';
+        console.error('Erro:', error);
+      }
+    }
+
     fetchBTCPrice();
-    setInterval(fetchBTCPrice, 10000); // Atualiza a cada 10 segundos
+    fetchNews();
+    setInterval(fetchBTCPrice, 10000); // Atualiza preço a cada 10s
   </script>
 </body>
 </html>
